@@ -39,8 +39,8 @@ main = hspec $ do
     it "Linear: returns exact values at nodes" $
       property $
         \x1 y1 x2 y2 ->
-          (x1 /= x2) ==>
-            let pts = [(x1, y1), (x2, y2)]
+          (x1 /= x2)
+          ==> let pts = [(x1, y1), (x2, y2)]
              in abs (linearInterp pts x1 - y1) < 0.0001
 
     -- Проверяем, что Лагранж проходит через ВСЕ узловые точки
