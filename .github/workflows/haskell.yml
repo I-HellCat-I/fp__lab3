@@ -1,0 +1,58 @@
+name: Haskell CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    name: Build, Lint and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Haskell Stack
+      uses: haskell-actions/setup@v2
+      with:
+        enable-stack: true
+        stack-version: 'latest'
+
+    
+    # --- ШАГ 1: Форматирование ---
+    - name: Check formatting (Ormolu)
+      uses: mrkkrp/ormolu-action@v17
+      with:
+        patterns: |
+          src/**/*.hs
+          app/**/*.hs
+          test/**/*.hs
+
+    # --- ШАГ 2: ЛИНТЕР ---
+    - name: Run HLint
+      run: curl -sL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src test
+
+
+    # --- ШАГ 3: КЕШИРОВАНИЕ ---
+    - name: Cache ~/.stack
+      uses: actions/cache@v3
+      with:
+        path: ~/.stack
+        key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml', 'package.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-stack-
+
+    # --- ШАГ 4: УСТАНОВКА ЗАВИСИМОСТЕЙ ---
+    - name: Install dependencies
+      run: stack build --only-dependencies
+
+    # --- ШАГ 5: СБОРКА ПРОЕКТА ---
+    - name: Build
+      run: stack build
+
+    # --- ШАГ 6: ТЕСТЫ ---
+    - name: Run Tests
+      run: stack test
