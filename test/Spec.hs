@@ -41,7 +41,7 @@ main = hspec $ do
         \x1 y1 x2 y2 ->
           (x1 /= x2)
           ==> let pts = [(x1, y1), (x2, y2)]
-               in abs (linearInterp pts x1 - y1) < 0.0001
+             in abs (linearInterp pts x1 - y1) < 0.0001
 
     -- Проверяем, что Лагранж проходит через ВСЕ узловые точки
     it "Lagrange: returns exact values at all input nodes" $
